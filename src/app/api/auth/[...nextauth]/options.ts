@@ -71,14 +71,20 @@ export const options: NextAuthOptions = {
   ],
   callbacks: {
     async jwt({ token, user }) {
-      if (user) token.role = user.role;
+      if (user) {
+        token.role = user.role;
+        token.userId = user.id;
+      }
       return token;
     },
     async session({ session, token }) {
-      if (session.user) session.user.role = token.role;
+      if (session.user) {
+        session.user.role = token.role;
+        session.user.id = token.userId;
+      }
       return session;
     },
-    async redirect({ url, baseUrl }) {
+    async redirect({ baseUrl }) {
       return baseUrl; // Redirect to homepage after signin
     },
   },

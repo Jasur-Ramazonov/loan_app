@@ -10,7 +10,7 @@ datasource db {
 
 model User {
   id            String    @id @default(cuid())
-  name          String?
+  name          String    @unique
   password      String?
   role          String?   @default("user")
   email         String?   @unique
@@ -18,6 +18,7 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
+  Debtor        Debtor[]
 }
 
 model Account {
@@ -52,4 +53,24 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+model Debtor {
+  id        String     @id @default(cuid())
+  user      User       @relation(fields: [userId], references: [id])
+  userId    String
+  name      String
+  phone     String?
+  totalDebt Int
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  Payments  Payments[]
+}
+
+model Payments {
+  id       String   @id @default(cuid())
+  debtor   Debtor   @relation(fields: [debtorId], references: [id])
+  debtorId String
+  amount   Int
+  paidAt   DateTime @default(now())
 }
