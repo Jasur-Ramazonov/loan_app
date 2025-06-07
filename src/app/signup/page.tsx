@@ -8,7 +8,7 @@ const SignUp = () => {
   const [password, setPassword] = useState("");
 
   return (
-    <div className="w-full h-[100vh] flex justify-center items-center">
+    <div className="w-full h-[100vh] flex justify-center items-center bg-black text-white">
       <div className="w-[400px] h-[300px] border rounded-md p-2">
         <p className="w-full text-center text-2xl">Sign Up</p>
         <div className="h-[80%] flex justify-center items-center">
