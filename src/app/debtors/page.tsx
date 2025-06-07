@@ -4,38 +4,51 @@ import Sidebar from "../Sidebar";
 import { IoSearch } from "react-icons/io5";
 import { Drawer } from "vaul";
 import { Debtor, Payment } from "../utils/defination";
-import { getDebtors } from "../api/debtor/functions";
+import { addDebtor, deleteDebtor, getDebtors } from "../api/debtor/functions";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSession } from "next-auth/react";
-import { getPayments } from "../api/payment/functions";
+import {
+  addPayment,
+  deletePayments,
+  getPayments,
+} from "../api/payment/functions";
 
 const Debtors = () => {
   const [debtors, setDebtors] = useState<Debtor[]>([]);
   const [open1, setOpen1] = useState(false);
   const [open2, setOpen2] = useState(false);
+  const [open3, setOpen3] = useState(false);
   const [currentDebtor, setCurrentDebtor] = useState<Debtor | null>(null);
   const [payments, setPayments] = useState<Payment[]>([]);
-  const deBtorsMap = new Map();
+  const [debtorsPay, setDebtorsPay] = useState<{ [key: string]: number }>({});
+  const [payment, setPayment] = useState<number | null>(null);
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [totalDebt, setTotalDebt] = useState<number | null>(null);
 
   const { data: session, status } = useSession();
 
   useEffect(() => {
-    if (!debtors) return;
-    debtors.forEach((itm) => {
-      deBtorsMap.set(itm.id, itm);
-    });
-  }, [debtors]);
-
-  useEffect(() => {
-    if (status !== "loading") {
+    if (status !== "loading" && payments[0]) {
       getDebtors().then((res) => {
-        const myDebtors = res.filter(
+        const myDebtors: Debtor[] = res.filter(
           (itm: Debtor) => itm.userId === session?.user.id
         );
         setDebtors(myDebtors);
+        myDebtors.forEach((debtor) => {
+          const id = debtor.id;
+          const payed = payments
+            .filter((itm) => itm.debtorId === debtor.id)
+            .map((itm) => itm.amount)
+            .reduce((val, acc) => val + acc, 0);
+          debtorsPay[id] = payed;
+          console.log(debtorsPay);
+
+          setDebtorsPay({ ...debtorsPay });
+        });
       });
     }
-  }, [status]);
+  }, [status, payments]);
 
   useEffect(() => {
     getPayments().then(setPayments);
@@ -71,6 +84,7 @@ const Debtors = () => {
         <div className="mt-5 flex flex-col gap-2">
           {debtors[0] ? (
             debtors.map((debtor, i) => {
+              const isPayed = debtor.totalDebt - debtorsPay[debtor.id];
               return (
                 <div
                   key={i}
@@ -86,26 +100,57 @@ const Debtors = () => {
                         {debtor.phone?.slice(9, 11) + " "}
                         {debtor.phone?.slice(11, 13) + " "}
                       </p>
-                      <p className="text-red-600">
-                        {debtor.totalDebt / 1000} 000 so'm
-                      </p>
+                      <span className="text-red-600">
+                        {isPayed ? (
+                          isPayed / 1000 + " " + "000 so'm"
+                        ) : (
+                          <p className="text-green-600">To'langan</p>
+                        )}
+                      </span>
                     </div>
                   </div>
-                  <div className="flex gap-2 items-center">
+                  {isPayed ? (
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => {
+                          setOpen2(true);
+                          setCurrentDebtor(debtor);
+                          console.log("debtorId", debtor.id);
+                        }}
+                        className="px-2 py-1 rounded-md border border-[#b0b2b6] cursor-pointer"
+                      >
+                        Batafsil
+                      </button>
+                      <button
+                        onClick={() => {
+                          setOpen3(true);
+                          setCurrentDebtor(debtor);
+                        }}
+                        className="px-2 py-1 rounded-md border border-[#b0b2b6] cursor-pointer"
+                      >
+                        To'lov
+                      </button>
+                    </div>
+                  ) : (
                     <button
                       onClick={() => {
-                        setOpen2(true);
-                        setCurrentDebtor(debtor);
-                        console.log("debtorId", debtor.id);
+                        deletePayments(debtor.id).then(() => {
+                          deleteDebtor(debtor.id).then(() => {
+                            getPayments().then(setPayments);
+                            getDebtors().then((res) => {
+                              const myDebtors: Debtor[] = res.filter(
+                                (itm: Debtor) => itm.userId === session?.user.id
+                              );
+                              setDebtors(myDebtors);
+                            });
+                          });
+                        });
                       }}
                       className="px-2 py-1 rounded-md border border-[#b0b2b6] cursor-pointer"
                     >
-                      Batafsil
+                      O'chirish
                     </button>
-                    <button className="px-2 py-1 rounded-md border border-[#b0b2b6] cursor-pointer">
-                      To'lov
-                    </button>
-                  </div>
+                  )}
                 </div>
               );
             })
@@ -129,18 +174,52 @@ const Debtors = () => {
                 Yangi Qarzdor Qo'shish
               </p>
             </Drawer.Title>
-            <form className="h-fit text-black flex justify-start items-center flex-col gap-5 p-6">
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                console.log("name", name);
+                console.log("totalDebt", totalDebt);
+                if (!name || !totalDebt) return;
+                const userId = session?.user.id!;
+                addDebtor(userId, name, totalDebt, phone).then(() => {
+                  getPayments().then(setPayments);
+                  getDebtors().then((res) => {
+                    const myDebtors: Debtor[] = res.filter(
+                      (itm: Debtor) => itm.userId === session?.user.id
+                    );
+                    setDebtors(myDebtors);
+                  });
+                  setName("");
+                  setPhone("");
+                  setTotalDebt(null);
+                  setOpen1(false);
+                });
+              }}
+              className="h-fit text-black flex justify-start items-center flex-col gap-5 p-6"
+            >
               <input
+                onChange={(e) => {
+                  setName(e.target.value);
+                }}
+                value={name}
                 type="text"
                 placeholder="ism"
                 className="p-2 rounded-md text-black outline-[#b0b2b6] border border-[#b0b2b6] focus:bg-gray-200 w-1/2"
               />
               <input
+                onChange={(e) => {
+                  setPhone(e.target.value);
+                }}
+                value={phone}
                 type="text"
                 placeholder="telefon raqam (xohishiy)"
                 className="p-2 rounded-md text-black outline-[#b0b2b6] border border-[#b0b2b6] focus:bg-gray-200 w-1/2"
               />
               <input
+                onChange={(e) => {
+                  setTotalDebt(Number(e.target.value));
+                }}
+                value={String(totalDebt)}
                 type="number"
                 placeholder="qarz miqdori"
                 className="p-2 rounded-md text-black outline-[#b0b2b6] border border-[#b0b2b6] focus:bg-gray-200 w-1/2"
@@ -177,7 +256,10 @@ const Debtors = () => {
               </span>
               <span className=" text-xl flex justify-center gap-2">
                 <p className=" font-semibold">To'langan:</p>
-                {payments[0]
+                {payments
+                  .filter((pay) => pay.debtorId === currentDebtor?.id)
+                  .map((pay) => pay.amount)
+                  .reduce((val, acc) => val + acc, 0)
                   ? payments
                       .filter((pay) => pay.debtorId === currentDebtor?.id)
                       .map((pay) => pay.amount)
@@ -187,6 +269,64 @@ const Debtors = () => {
                   : "to'lov qilinmagan shu paytgacha"}
               </span>
             </div>
+          </Drawer.Content>
+        </Drawer.Portal>
+      </Drawer.Root>
+      {/* modal to payment */}
+      <Drawer.Root open={open3} onOpenChange={setOpen3}>
+        <Drawer.Portal>
+          <Drawer.Overlay className="fixed inset-0 bg-black/40" />
+          <Drawer.Content className="bg-gray-100 h-fit fixed bottom-0 left-0 right-0 outline-none">
+            <Drawer.Title className="text-center mt-5 font-semibold text-2xl">
+              To'lov qilish
+            </Drawer.Title>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (!payment || payment <= 0) return;
+                const shouldPay =
+                  currentDebtor?.totalDebt! - debtorsPay[currentDebtor!.id];
+                if (shouldPay >= payment) {
+                  addPayment(currentDebtor!.id, payment).then(() => {
+                    setCurrentDebtor(null);
+                    setPayment(null);
+                    setOpen3(false);
+                    getPayments().then(setPayments);
+                    getDebtors().then((res) => {
+                      const myDebtors: Debtor[] = res.filter(
+                        (itm: Debtor) => itm.userId === session?.user.id
+                      );
+                      setDebtors(myDebtors);
+                    });
+                  });
+                }
+              }}
+              className="h-fit flex w-full justify-center items-center p-5 mb-45 flex-col gap-2"
+            >
+              <input
+                onChange={(e) => {
+                  setPayment(Number(e.target.value));
+                }}
+                value={String(payment)}
+                type="number"
+                placeholder="to'lov miqdori"
+                className="p-2 rounded-md text-black outline-[#b0b2b6] border border-[#b0b2b6] focus:bg-gray-200 w-1/2"
+              />
+              <button
+                type={"submit"}
+                className="px-2 py-1.5 rounded-md bg-blue-600 cursor-pointer text-white w-1/2"
+              >
+                To'lov qilish
+              </button>
+              <button
+                onClick={() => {
+                  console.log(currentDebtor);
+                }}
+                className="px-2 py-1.5 rounded-md bg-green-600 cursor-pointer text-white w-1/2"
+              >
+                Qarzni yopish
+              </button>
+            </form>
           </Drawer.Content>
         </Drawer.Portal>
       </Drawer.Root>

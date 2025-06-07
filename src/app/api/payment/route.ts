@@ -27,3 +27,16 @@ export async function POST(req: NextRequest) {
     console.log(error);
   }
 }
+
+export async function DELETE(req: NextRequest) {
+  try {
+    const { debtorId } = await req.json();
+
+    const res = await prisma.payments.deleteMany({
+      where: { debtorId: debtorId },
+    });
+    return NextResponse.json(res);
+  } catch (error) {
+    console.log(error);
+  }
+}
