@@ -1,5 +1,6 @@
 "use client";
 import { getProviders, signIn } from "next-auth/react";
+import { redirect } from "next/navigation";
 import { useEffect, useState } from "react";
 import { FaGithub } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
@@ -90,6 +91,14 @@ const Signin = () => {
               </div>
             );
           })}
+        <button
+          onClick={() => {
+            redirect("/signup");
+          }}
+          className="px-3 py-1.5 rounded-md bg-blue-600 cursor-pointer"
+        >
+          SIGN UP
+        </button>
       </div>
     </div>
   );

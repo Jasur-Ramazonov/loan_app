@@ -29,16 +29,16 @@ const Mainpage = (params: { name: string }) => {
         if (!res) return new Error();
         setDebtors(res.filter((itm: any) => itm.userId === id));
       });
+      getPayments().then((res) => {
+        const payments = (res as Payment[]).filter((itm) => {
+          return itm.userId === id;
+        });
+        console.log("payments", payments);
+
+        setPayment(payments);
+      });
     }
   }, [id]);
-
-  useEffect(() => {
-    getPayments().then((res) => {
-      const payments = (res as Payment[]).filter((itm) => {
-        itm;
-      });
-    });
-  }, []);
 
   return (
     <div className="w-2/3 h-full p-10">
