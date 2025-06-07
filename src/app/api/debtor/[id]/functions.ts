@@ -8,6 +8,4 @@ export async function updateDebtor() {
   } catch (error) {
     console.log(error);
   }
-Jersey_15_Charted
-23it    
-
+}
