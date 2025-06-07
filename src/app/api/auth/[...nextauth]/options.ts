@@ -45,8 +45,8 @@ export const options: NextAuthOptions = {
         return {
           id: user.id,
           name: user.name ?? "Unknown",
-          email: user.email ?? "",
-          image: user.image ?? "",
+          email: user.email ?? " ",
+          image: user.image ?? " ",
           role: user.role ?? "user",
         };
       },
