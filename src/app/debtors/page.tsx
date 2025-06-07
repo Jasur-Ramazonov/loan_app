@@ -12,6 +12,7 @@ import {
   deletePayments,
   getPayments,
 } from "../api/payment/functions";
+import { updateDebtor } from "../api/debtor/[id]/functions";
 
 const Debtors = () => {
   const [debtors, setDebtors] = useState<Debtor[]>([]);
@@ -29,12 +30,13 @@ const Debtors = () => {
   const { data: session, status } = useSession();
 
   useEffect(() => {
-    if (status !== "loading" && payments[0]) {
+    if (status !== "loading") {
       getDebtors().then((res) => {
         const myDebtors: Debtor[] = res.filter(
           (itm: Debtor) => itm.userId === session?.user.id
         );
         setDebtors(myDebtors);
+        console.log("mydebtors", myDebtors);
         myDebtors.forEach((debtor) => {
           const id = debtor.id;
           const payed = payments
@@ -43,7 +45,6 @@ const Debtors = () => {
             .reduce((val, acc) => val + acc, 0);
           debtorsPay[id] = payed;
           console.log(debtorsPay);
-
           setDebtorsPay({ ...debtorsPay });
         });
       });
@@ -63,12 +64,12 @@ const Debtors = () => {
           <div className="flex items-center gap-2 border-2 rounded-md border-[#f3f4f5] p-2">
             <IoSearch className="text-xl text-[#b0b2b6]" />
             <input
+              onChange={() => {
+                console.log(debtors);
+              }}
               type="text"
               placeholder="Qidiruv"
               className="outline-none"
-              onClick={() => {
-                console.log("man inputman");
-              }}
             />
           </div>
           <button
@@ -320,7 +321,19 @@ const Debtors = () => {
               </button>
               <button
                 onClick={() => {
-                  console.log(currentDebtor);
+                  updateDebtor(currentDebtor!.id, 0).then(() => {
+                    deletePayments(currentDebtor!.id).then(() => {
+                      getPayments().then(setPayments);
+                      setCurrentDebtor(null);
+                      getDebtors().then((res) => {
+                        const myDebtors: Debtor[] = res.filter(
+                          (itm: Debtor) => itm.userId === session?.user.id
+                        );
+                        setDebtors(myDebtors);
+                        setOpen3(false);
+                      });
+                    });
+                  });
                 }}
                 className="px-2 py-1.5 rounded-md bg-green-600 cursor-pointer text-white w-1/2"
               >

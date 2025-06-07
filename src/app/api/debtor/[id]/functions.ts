@@ -1,10 +1,9 @@
 import axios from "axios";
-import { Jersey_15_Charted } from "next/font/google";
-import { it } from "node:test";
 
-export async function updateDebtor() {
+export async function updateDebtor(id: string, totalDebt: number) {
   try {
-    const res = await axios.put(`/api/debtor/`);
+    const res = await axios.put(`/api/debtor/${id}`, { totalDebt });
+    return res.data;
   } catch (error) {
     console.log(error);
   }

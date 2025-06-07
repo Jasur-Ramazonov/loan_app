@@ -1,24 +1,27 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { getDebtors } from "./api/debtor/functions";
-import { Debtor } from "./utils/defination";
-import { getUsers } from "./api/user/functions";
-import { User } from "@/generated/prisma";
+import { Debtor, Payment } from "./utils/defination";
+import { useSession } from "next-auth/react";
+import { getPayments } from "./api/payment/functions";
 
 const Mainpage = (params: { name: string }) => {
   const [debtors, setDebtors] = useState<Debtor[]>();
   const [id, setId] = useState("");
+  const [payments, setPayment] = useState<Payment[]>([]);
   const date = new Date();
   const day = date.getDate();
   const month = date.getMonth() + 1;
   const year = date.getFullYear();
 
+  const { data: session, status } = useSession();
+
   useEffect(() => {
-    getUsers().then((res: User[]) => {
-      const currentUser = res.find((itm) => itm.name === params.name);
-      setId(currentUser!.id);
-    });
-  }, []);
+    if (status != "loading") {
+      const id = session?.user.id!;
+      setId(id);
+    }
+  }, [status]);
 
   useEffect(() => {
     if (id) {
@@ -28,6 +31,14 @@ const Mainpage = (params: { name: string }) => {
       });
     }
   }, [id]);
+
+  useEffect(() => {
+    getPayments().then((res) => {
+      const payments = (res as Payment[]).filter((itm) => {
+        itm;
+      });
+    });
+  }, []);
 
   return (
     <div className="w-2/3 h-full p-10">
@@ -65,6 +76,9 @@ const Mainpage = (params: { name: string }) => {
                   .map((itm) => {
                     return itm.totalDebt;
                   })
+                  .reduce((val, acc) => val + acc, 0) -
+                payments
+                  ?.map((itm) => itm.amount)
                   .reduce((val, acc) => val + acc, 0)
               : 0}
           </p>
