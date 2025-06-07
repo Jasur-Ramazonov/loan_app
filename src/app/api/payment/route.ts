@@ -12,7 +12,7 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
-    const { debtorId, amount } = await req.json();
+    const { debtorId, amount, userId } = await req.json();
     if (!debtorId || !amount) {
       return NextResponse.json({ message: "error" }, { status: 400 });
     }
@@ -20,6 +20,7 @@ export async function POST(req: NextRequest) {
       data: {
         debtorId,
         amount,
+        userId,
       },
     });
     return NextResponse.json(res);

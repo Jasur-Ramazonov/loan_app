@@ -288,18 +288,20 @@ const Debtors = () => {
                 const shouldPay =
                   currentDebtor?.totalDebt! - debtorsPay[currentDebtor!.id];
                 if (shouldPay >= payment) {
-                  addPayment(currentDebtor!.id, payment).then(() => {
-                    setCurrentDebtor(null);
-                    setPayment(null);
-                    setOpen3(false);
-                    getPayments().then(setPayments);
-                    getDebtors().then((res) => {
-                      const myDebtors: Debtor[] = res.filter(
-                        (itm: Debtor) => itm.userId === session?.user.id
-                      );
-                      setDebtors(myDebtors);
-                    });
-                  });
+                  addPayment(currentDebtor!.id, payment, session!.user.id).then(
+                    () => {
+                      setCurrentDebtor(null);
+                      setPayment(null);
+                      setOpen3(false);
+                      getPayments().then(setPayments);
+                      getDebtors().then((res) => {
+                        const myDebtors: Debtor[] = res.filter(
+                          (itm: Debtor) => itm.userId === session?.user.id
+                        );
+                        setDebtors(myDebtors);
+                      });
+                    }
+                  );
                 }
               }}
               className="h-fit flex w-full justify-center items-center p-5 mb-45 flex-col gap-2"

@@ -9,9 +9,13 @@ export async function getPayments() {
   }
 }
 
-export async function addPayment(debtorId: string, amount: number) {
+export async function addPayment(
+  debtorId: string,
+  amount: number,
+  userId: string
+) {
   try {
-    const res = await axios.post("/api/payment", { debtorId, amount });
+    const res = await axios.post("/api/payment", { debtorId, amount, userId });
     return res.data;
   } catch (error) {
     console.log(error);

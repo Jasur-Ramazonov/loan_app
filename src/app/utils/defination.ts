@@ -13,4 +13,5 @@ export type Payment = {
   debtorId: string;
   amount: number;
   paidAt: string;
+  userId: string;
 };
