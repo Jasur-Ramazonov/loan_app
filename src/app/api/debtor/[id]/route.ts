@@ -1,12 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "../../auth/[...nextauth]/options";
 
-export async function PUT(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PUT(req: NextRequest) {
   try {
-    const { id } = params;
+    const id = req.nextUrl.pathname.split("/").pop();
     if (!id) {
       return NextResponse.json({ message: "not exist debtorId" });
     }
