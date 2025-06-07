@@ -14,11 +14,14 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ message: "This user already exists" });
   }
 
+  const email = " ";
+
   const user = await prisma.user.create({
     data: {
       name,
       password: hashedPassword,
       role: "user",
+      email,
     },
   });
 
