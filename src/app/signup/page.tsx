@@ -2,7 +2,6 @@
 import axios from "axios";
 import { useState } from "react";
 import { redirect } from "next/navigation";
-import Link from "next/link";
 
 const SignUp = () => {
   const [name, setName] = useState("");
@@ -31,7 +30,7 @@ const SignUp = () => {
               setPassword("");
               redirect("/api/auth/signin");
             }}
-            className="w-full flex flex-col gap-5"
+            className="w-full flex flex-col gap-2"
           >
             <input
               type="text"
@@ -52,10 +51,15 @@ const SignUp = () => {
             <button className="w-full rounded-md bg-blue-600 cursor-pointer text-white py-2">
               Sign Up
             </button>
+            <button
+              onClick={() => {
+                redirect("/api/auth/signin");
+              }}
+              className="w-full rounded-md cursor-pointer py-2 bg-gray-800 text-white"
+            >
+              Sign In
+            </button>
           </form>
-          <p>
-            If you have an account <Link href={"/api/auth/signin"}>signin</Link>
-          </p>
         </div>
       </div>
     </div>

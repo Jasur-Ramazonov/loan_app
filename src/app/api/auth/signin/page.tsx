@@ -95,9 +95,9 @@ const Signin = () => {
           onClick={() => {
             redirect("/signup");
           }}
-          className="px-3 py-1.5 rounded-md bg-blue-600 cursor-pointer"
+          className="px-3 py-1.5 rounded-md bg-gray-800 cursor-pointer w-full"
         >
-          SIGN UP
+          Sign Up
         </button>
       </div>
     </div>
