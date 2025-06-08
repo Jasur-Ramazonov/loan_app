@@ -1,13 +1,12 @@
 "use client";
 import axios from "axios";
 import { useState } from "react";
-import { redirect, useRouter } from "next/navigation";
+import { redirect } from "next/navigation";
 import Link from "next/link";
 
 const SignUp = () => {
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
-  const router = useRouter();
 
   return (
     <div className="w-full h-[100vh] flex justify-center items-center bg-black text-white">
