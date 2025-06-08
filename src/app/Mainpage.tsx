@@ -64,6 +64,15 @@ const Mainpage = (params: { name: string }) => {
                   .map((itm) => {
                     return itm.totalDebt;
                   })
+                  .reduce((val, acc) => val + acc, 0) -
+                payments
+                  .filter(
+                    (itm) =>
+                      Number(itm.paidAt.slice(0, 4)) === year &&
+                      Number(itm.paidAt.slice(5, 7)) === month &&
+                      Number(itm.paidAt.slice(8, 10)) === day
+                  )
+                  .map((itm) => itm.amount)
                   .reduce((val, acc) => val + acc, 0)
               : 0}
           </p>
