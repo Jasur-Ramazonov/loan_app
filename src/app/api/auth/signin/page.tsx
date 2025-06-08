@@ -1,13 +1,11 @@
 "use client";
 import { getProviders, signIn } from "next-auth/react";
 import { redirect } from "next/navigation";
-import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { FaGithub } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 const Signin = () => {
   const [providers, setProviders] = useState<any>(null);
-  const router = useRouter();
 
   useEffect(() => {
     getProviders().then(setProviders);
@@ -95,7 +93,7 @@ const Signin = () => {
           })}
         <button
           onClick={() => {
-            router.push("/signup");
+            redirect("/signup");
           }}
           className="px-3 py-1.5 rounded-md bg-blue-600 cursor-pointer"
         >
