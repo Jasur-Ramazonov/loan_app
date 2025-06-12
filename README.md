@@ -1,1 +1,1 @@
-This project helps you with handle loans.
+I developed both the backend and frontend of this project using Next.js. I used Prisma as the ORM and PostgreSQL as the database. The purpose of this project is to manage debts in a shop. For authentication, I used NextAuth.js. There are still some issues in my code, and the project is not yet complete.
